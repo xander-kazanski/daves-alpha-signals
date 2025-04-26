@@ -2,6 +2,7 @@ import OpenAI from 'openai'
 import { dates } from '/utils/dates'
 import { messages } from './prompt'
 
+const BACKEND_URL = 'https://curly-grass-12c6.alexander1-15-1943.workers.dev/'
 const tickersArr = []
 
 // DOM Elements
@@ -49,7 +50,6 @@ async function fetchStockData() {
     try {
         const stockData = await Promise.all(
             tickersArr.map(async (ticker) => {
-                console.log(import.meta);
                 apiMessage.innerText = `Fetching data for ${ticker}...`
                 const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${import.meta.env.VITE_POLYGON_API_KEY}`;
                 const response = await fetch(url)
@@ -72,23 +72,14 @@ async function fetchStockData() {
 // Fetch and process the report
 async function fetchReport(data) {
     try {
-        const useMockResponse = import.meta.env.VITE_USE_MOCK_RESPONSE === 'true';
-
-        if (useMockResponse) {
-            const { mockResponse }  = await import('./mockResponse.js');
-            renderReport(mockResponse.choices[0].message.content);
-            return;
-        }
-        const openai = new OpenAI({
-            dangerouslyAllowBrowser: true,
-            apiKey: import.meta.env.VITE_OPEN_AI_API_KEY
-        });
-        const response = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: messages(data)
-        });
-        const { content } = response.choices[0].message;
-        renderReport(content);
+        const content = await fetch(BACKEND_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        renderReport(await content.text())
     } catch (err) {
         console.error('Error generating report:', err);
         loadingArea.innerText = 'There was an error generating the report.';
