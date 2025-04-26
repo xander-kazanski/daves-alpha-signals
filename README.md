@@ -1,19 +1,42 @@
-# Getting Started
-Install the dependencies and run the project
-```
-npm install
+# Dave's Alpha Signals
+
+Dave's Alpha Signals is a fun and interactive app that generates stock predictions based on user-provided tickers. Please note, this is not real financial advice!
+
+## Getting Started
+
+### Prerequisites
+- Node.js installed on your system
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd davesAlphaSignals
+   ```
+3. Install the dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running the App
+Start the development server:
+```bash
 npm start
 ```
 
-Head over to https://vitejs.dev/ to learn more about configuring vite
-## About Scrimba
+The app will be available at `http://localhost:3000`.
 
-At Scrimba our goal is to create the best possible coding school at the cost of a gym membership! 💜
-If we succeed with this, it will give anyone who wants to become a software developer a realistic shot at succeeding, regardless of where they live and the size of their wallets 🎉
-The Frontend Developer Career Path aims to teach you everything you need to become a Junior Developer, or you could take a deep-dive with one of our advanced courses 🚀
+## Features
+- Add up to 3 stock tickers to generate a stock predictions report.
+- Interactive UI with loading and output panels.
+- Fun and engaging design.
 
-- [Our courses](https://scrimba.com/allcourses)
-- [The Frontend Career Path](https://scrimba.com/learn/frontend)
-- [Become a Scrimba Pro member](https://scrimba.com/pricing)
+## Notes
+- This app uses mock responses for demonstration purposes.
+- API keys are stored in the `.env` file. Replace them with your own keys if needed.
 
-Happy Coding!
+## Disclaimer
+This app is for entertainment purposes only and does not provide real financial advice.
