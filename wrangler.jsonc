@@ -1,6 +1,9 @@
 {
   "name": "daves-alpha-signals",
   "compatibility_date": "2025-04-26",
+  "vars": {
+    "POLYGON_API_KEY": "${POLYGON_API_KEY}"
+  },
   "assets": {
     "directory": "./dist"
   }
