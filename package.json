@@ -1,6 +1,6 @@
 {
-  "name": "Scrim-s05qcfg",
-  "description": "https://scrimba.com/the-ai-engineer-path-c02v/~03",
+  "name": "DavesAlphaSignals",
+  "description": "A simple web app for displaying alpha signals",
   "scripts": {
     "start": "vite",
     "dev": "vite",
@@ -8,7 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vite": "latest"
+    "vite": "latest",
+    "openai": "^4.14.2"
   },
   "devDependencies": {}
 }

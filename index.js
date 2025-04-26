@@ -1,29 +1,36 @@
+import OpenAI from 'openai'
 import { dates } from '/utils/dates'
+import { messages } from './prompt'
 
 const tickersArr = []
 
+// DOM Elements
 const generateReportBtn = document.querySelector('.generate-report-btn')
+const loadingArea = document.querySelector('.loading-panel')
+const apiMessage = document.getElementById('api-message')
+const tickerInputForm = document.getElementById('ticker-input-form')
+const tickerInput = document.getElementById('ticker-input')
+const tickersDiv = document.querySelector('.ticker-choice-display')
 
+// Event Listeners
 generateReportBtn.addEventListener('click', fetchStockData)
 
-document.getElementById('ticker-input-form').addEventListener('submit', (e) => {
+tickerInputForm.addEventListener('submit', (e) => {
     e.preventDefault()
-    const tickerInput = document.getElementById('ticker-input')
     if (tickerInput.value.length > 2) {
         generateReportBtn.disabled = false
-        const newTickerStr = tickerInput.value
-        tickersArr.push(newTickerStr.toUpperCase())
+        tickersArr.push(tickerInput.value.toUpperCase())
         tickerInput.value = ''
         renderTickers()
     } else {
-        const label = document.getElementsByTagName('label')[0]
+        const label = document.querySelector('label')
         label.style.color = 'red'
-        label.textContent = 'You must add at least one ticker. A ticker is a 3 letter or more code for a stock. E.g TSLA for Tesla.'
+        label.textContent = 'You must add at least one ticker. A ticker is a 3-letter or more code for a stock. E.g., TSLA for Tesla.'
     }
 })
 
+// Render tickers in the UI
 function renderTickers() {
-    const tickersDiv = document.querySelector('.ticker-choice-display')
     tickersDiv.innerHTML = ''
     tickersArr.forEach((ticker) => {
         const newTickerSpan = document.createElement('span')
@@ -33,41 +40,76 @@ function renderTickers() {
     })
 }
 
-const loadingArea = document.querySelector('.loading-panel')
-const apiMessage = document.getElementById('api-message')
-
+// Fetch stock data for all tickers
 async function fetchStockData() {
     document.querySelector('.action-panel').style.display = 'none'
     loadingArea.style.display = 'flex'
+    apiMessage.innerText = '' // Clear previous messages
+
     try {
-        const stockData = await Promise.all(tickersArr.map(async (ticker) => {
-            const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${process.env.POLYGON_API_KEY}`
-            const response = await fetch(url)
-            const data = await response.text()
-            const status = await response.status
-            if (status === 200) {
-                apiMessage.innerText = 'Creating report...'
-                return data
-            } else {
-                loadingArea.innerText = 'There was an error fetching stock data.'
-            }
-        }))
+        const stockData = await Promise.all(
+            tickersArr.map(async (ticker) => {
+                console.log(import.meta);
+                apiMessage.innerText = `Fetching data for ${ticker}...`
+                const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${import.meta.env.VITE_POLYGON_API_KEY}`;
+                const response = await fetch(url)
+
+                if (response.ok) {
+                    apiMessage.innerText = 'Creating report...'
+                    return await response.text()
+                } else {
+                    throw new Error(`Failed to fetch data for ${ticker}. Status: ${response.status}`)
+                }
+            })
+        )
         fetchReport(stockData.join(''))
-    } catch(err) {
+    } catch (err) {
         loadingArea.innerText = 'There was an error fetching stock data.'
-        console.error('error: ', err)
+        console.error('Error fetching stock data:', err)
     }
 }
 
+// Fetch and process the report
 async function fetchReport(data) {
-    /** AI goes here **/
+    try {
+        const useMockResponse = import.meta.env.VITE_USE_MOCK_RESPONSE === 'true';
+
+        if (useMockResponse) {
+            const { mockResponse }  = await import('./mockResponse.js');
+            renderReport(mockResponse.choices[0].message.content);
+            return;
+        }
+        const openai = new OpenAI({
+            dangerouslyAllowBrowser: true,
+            apiKey: import.meta.env.VITE_OPEN_AI_API_KEY
+        });
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: messages(data)
+        });
+        const { content } = response.choices[0].message;
+        renderReport(content);
+    } catch (err) {
+        console.error('Error generating report:', err);
+        loadingArea.innerText = 'There was an error generating the report.';
+    }
 }
 
+// Render the final report in the UI
 function renderReport(output) {
-    loadingArea.style.display = 'none'
-    const outputArea = document.querySelector('.output-panel')
-    const report = document.createElement('p')
-    outputArea.appendChild(report)
-    report.textContent = output
-    outputArea.style.display = 'flex'
+    loadingArea.style.display = 'none';
+    const outputArea = document.querySelector('.output-panel');
+    outputArea.innerHTML = ''; // Clear previous output
+
+    // Parse the output and format it as HTML
+    const report = document.createElement('div');
+    report.innerHTML = output
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold formatting
+        .replace(/\d+\.\s\*\*(.*?)\*\*/g, '<h3>$1</h3>') // Headings for data points
+        .replace(/-\s(.*?):/g, '<li><strong>$1:</strong>') // List items
+        .replace(/\n\s{3}/g, '</li>'); // Close list items
+
+    outputArea.appendChild(report);
+    outputArea.style.display = 'flex';
 }
