@@ -56,8 +56,7 @@ async function fetchStockData() {
             },
             body: JSON.stringify({ tickers, dates }),
         })
-        console.log('Request:', request)
-        fetchReport(request.join(''))
+        fetchReport(await request.text().join(''))
     } catch (err) {
         loadingArea.innerText = 'There was an error fetching stock data.'
         console.error('Error fetching stock data:', err)
