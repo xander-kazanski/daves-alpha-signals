@@ -57,29 +57,10 @@ async function fetchStockData() {
             },
             body: JSON.stringify({ tickers, dates }),
         })
-        const data = await request.text()
-        console.log('Data received:', data);
-        fetchReport(data)
+        renderReport(await request.text())
     } catch (err) {
         loadingArea.innerText = 'There was an error fetching stock data.'
         console.error('Error fetching stock data:', err)
-    }
-}
-
-// Fetch and process the report
-async function fetchReport(data) {
-    try {
-        const content = await fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        renderReport(await content.text())
-    } catch (err) {
-        console.error('Error generating report:', err);
-        loadingArea.innerText = 'There was an error generating the report.';
     }
 }
 
