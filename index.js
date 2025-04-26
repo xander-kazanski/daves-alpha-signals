@@ -2,7 +2,8 @@ import OpenAI from 'openai'
 import { dates } from '/utils/dates'
 import { messages } from './prompt'
 
-const BACKEND_URL = 'https://curly-grass-12c6.alexander1-15-1943.workers.dev/'
+// const BACKEND_URL = 'https://curly-grass-12c6.alexander1-15-1943.workers.dev/'
+const BACKEND_URL = 'http://localhost:8787'
 const tickersArr = []
 
 // DOM Elements
@@ -56,7 +57,9 @@ async function fetchStockData() {
             },
             body: JSON.stringify({ tickers, dates }),
         })
-        fetchReport(await request.text())
+        const data = await request.text()
+        console.log('Data received:', data);
+        fetchReport(data)
     } catch (err) {
         loadingArea.innerText = 'There was an error fetching stock data.'
         console.error('Error fetching stock data:', err)
