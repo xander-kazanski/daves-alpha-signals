@@ -49,14 +49,14 @@ async function fetchStockData() {
     
     try {
         const tickers = tickersArr.join(',')
-        const request = fetch(BACKEND_URL, {
+        const request = await fetch(BACKEND_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ tickers, dates }),
         })
-        fetchReport(stockData.join(''))
+        fetchReport(request.join(''))
     } catch (err) {
         loadingArea.innerText = 'There was an error fetching stock data.'
         console.error('Error fetching stock data:', err)
