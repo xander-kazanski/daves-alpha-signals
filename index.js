@@ -2,8 +2,8 @@ import OpenAI from 'openai'
 import { dates } from '/utils/dates'
 import { messages } from './prompt'
 
-// const BACKEND_URL = 'https://curly-grass-12c6.alexander1-15-1943.workers.dev/'
-const BACKEND_URL = 'http://localhost:8787'
+const BACKEND_URL = 'https://curly-grass-12c6.alexander1-15-1943.workers.dev/'
+// const BACKEND_URL = 'http://localhost:8787'
 const tickersArr = []
 
 // DOM Elements
