@@ -19,15 +19,16 @@ generateReportBtn.addEventListener('click', fetchStockData)
 
 tickerInputForm.addEventListener('submit', (e) => {
     e.preventDefault()
-    if (tickerInput.value.length > 2) {
+    const tickerValue = tickerInput.value.trim();
+    if (tickerValue.length >= 1) {
         generateReportBtn.disabled = false
-        tickersArr.push(tickerInput.value.toUpperCase())
+        tickersArr.push(tickerValue.toUpperCase())
         tickerInput.value = ''
         renderTickers()
     } else {
         const label = document.querySelector('label')
         label.style.color = 'red'
-        label.textContent = 'You must add at least one ticker. A ticker is a 3-letter or more code for a stock. E.g., TSLA for Tesla.'
+        label.textContent = 'Please enter a valid stock ticker symbol. For example: F for Ford, AAPL for Apple, MSFT for Microsoft.'
     }
 })
 
